@@ -2,6 +2,10 @@
  * Entry point: init DB, state, app shell, and hash-based router.
  */
 
+import '../styles/reset.css';
+import '../styles/theme.css';
+import '../styles/layout.css';
+import '../styles/components.css';
 import { renderAppShell } from './ui/app-shell.js';
 import { renderProjectsPage } from './ui/projects.js';
 import { renderFloorPlanPage } from './ui/floor-plan.js';
