@@ -1,9 +1,5 @@
-/**
- * App shell: header (title, saved indicator), sidebar nav.
- */
-
 import { getCurrentProjectId, subscribe, isDirty } from '../state.js';
-import { getProject } from '../db.js';
+import { getProject, putProject } from '../db.js';
 
 let currentProjectName = '';
 let unsubscribe = null;
@@ -19,12 +15,22 @@ export function renderAppShell() {
   header.innerHTML = `
     <div class="header-left">
       <a href="#/" class="logo">Interior Design</a>
-      ${projectId ? `<span class="header-sep">/</span><a href="${projectLink}" class="project-name">${escapeHtml(currentProjectName) || 'Project'}</a>` : ''}
+      ${projectId ? `<span class="header-sep">/</span><input type="text" id="header-project-name" class="header-project-input" value="${esc(currentProjectName || 'Project')}" />` : ''}
     </div>
     <div class="header-right">
       <span id="saved-indicator" class="saved-indicator">${isDirty() ? 'Unsaved' : 'Saved'}</span>
     </div>
   `;
+
+  const nameInput = document.getElementById('header-project-name');
+  if (nameInput && projectId) {
+    nameInput.addEventListener('change', async () => {
+      const newName = nameInput.value.trim() || 'Untitled';
+      currentProjectName = newName;
+      const p = await getProject(projectId);
+      if (p) { p.name = newName; await putProject(p); }
+    });
+  }
 
   const main = document.getElementById('app-main');
   if (!main) return;
@@ -56,13 +62,12 @@ export function renderAppShell() {
       const p = await getProject(id);
       if (p) {
         currentProjectName = p.name;
-        const nameEl = header.querySelector('.project-name');
-        if (nameEl) nameEl.textContent = p.name;
+        const nameEl = document.getElementById('header-project-name');
+        if (nameEl) nameEl.value = p.name;
       }
     }
   });
 }
-
 
 export function setCurrentProjectName(name) {
   currentProjectName = name || '';
@@ -84,8 +89,6 @@ export function showSaving() {
   }
 }
 
-function escapeHtml(s) {
-  const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

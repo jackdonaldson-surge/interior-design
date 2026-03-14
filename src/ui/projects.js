@@ -1,9 +1,5 @@
-/**
- * Projects list page: list all projects, create new, open project.
- */
-
 import { setCurrentProjectId, setCurrentFloorIndex } from '../state.js';
-import { getAllProjects, putProject, generateId } from '../db.js';
+import { getAllProjects, putProject, deleteProject, generateId } from '../db.js';
 import { renderAppShell, setCurrentProjectName } from './app-shell.js';
 
 const defaultProject = () => ({
@@ -40,23 +36,46 @@ export async function renderProjectsPage() {
     `;
   } else {
     listEl.innerHTML = projects
-      .map(
-        (p) => `
-      <article class="project-card card" data-id="${escapeAttr(p.id)}">
-        <h3>${escapeHtml(p.name)}</h3>
-        <p class="meta">Updated ${formatDate(p.updatedAt)}</p>
-      </article>
-    `
-      )
+      .map((p) => `
+        <article class="project-card card" data-id="${esc(p.id)}">
+          <div class="project-card-header">
+            <input type="text" class="project-name-input" data-id="${esc(p.id)}" value="${esc(p.name)}" />
+            <button type="button" class="btn-icon btn-delete-project" data-id="${esc(p.id)}" title="Delete project">&times;</button>
+          </div>
+          <p class="meta">Updated ${formatDate(p.updatedAt)}</p>
+          <button type="button" class="btn btn-secondary btn-sm btn-open-project" data-id="${esc(p.id)}">Open</button>
+        </article>
+      `)
       .join('');
   }
 
-  listEl.querySelectorAll('.project-card').forEach((el) => {
-    el.addEventListener('click', () => {
-      const id = el.dataset.id;
+  listEl.querySelectorAll('.project-name-input').forEach((input) => {
+    input.addEventListener('change', async () => {
+      const p = projects.find((pr) => pr.id === input.dataset.id);
+      if (p) {
+        p.name = input.value.trim() || 'Untitled';
+        await putProject(p);
+      }
+    });
+    input.addEventListener('click', (e) => e.stopPropagation());
+  });
+
+  listEl.querySelectorAll('.btn-open-project').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
       setCurrentProjectId(id);
       setCurrentProjectName(projects.find((p) => p.id === id)?.name);
       window.location.hash = `#/project/${id}/plan`;
+    });
+  });
+
+  listEl.querySelectorAll('.btn-delete-project').forEach((btn) => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this project?')) return;
+      await deleteProject(btn.dataset.id);
+      await renderProjectsPage();
     });
   });
 
@@ -70,16 +89,9 @@ export async function renderProjectsPage() {
 }
 
 function formatDate(ts) {
-  const d = new Date(ts);
-  return d.toLocaleDateString(undefined, { dateStyle: 'medium' });
+  return new Date(ts).toLocaleDateString(undefined, { dateStyle: 'medium' });
 }
 
-function escapeHtml(s) {
-  const div = document.createElement('div');
-  div.textContent = s;
-  return div.innerHTML;
-}
-
-function escapeAttr(s) {
-  return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

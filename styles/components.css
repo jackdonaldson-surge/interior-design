@@ -10,7 +10,6 @@
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
   padding: var(--space-lg);
-  cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
 }
 
@@ -19,14 +18,63 @@
   border-color: var(--border-strong);
 }
 
-.project-card h3 {
-  margin: 0 0 var(--space-xs);
+.project-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xs);
+}
+
+.project-name-input {
+  flex: 1;
   font-size: 1.125rem;
+  font-weight: 600;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  background: transparent;
+  color: var(--text-primary);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.project-name-input:hover {
+  border-color: var(--border);
+  background: var(--bg-card-hover);
+}
+
+.project-name-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }
 
 .project-card .meta {
   font-size: 0.8125rem;
   color: var(--text-tertiary);
+  margin-bottom: var(--space-md);
+}
+
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 1.125rem;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.btn-icon:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+
+.btn-sm {
+  padding: var(--space-xs) var(--space-sm);
+  font-size: 0.8125rem;
 }
 
 /* Forms */
@@ -58,66 +106,223 @@
   box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
 }
 
+.input-inline {
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.input-inline:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
+.input-sm {
+  width: 80px;
+}
+
+/* Header project name input */
+.header-project-input {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  max-width: 200px;
+}
+
+.header-project-input:hover {
+  border-color: var(--border);
+  background: var(--bg-card-hover);
+}
+
+.header-project-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.15);
+}
+
 /* Floor plan layout */
-.floor-plan-sidebar {
-  margin-top: var(--space-lg);
-  padding: var(--space-md);
+.fp-layout {
+  display: flex;
+  gap: var(--space-lg);
+  height: calc(100vh - var(--header-h) - 48px);
+  min-height: 500px;
+}
+
+.fp-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fp-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-md);
+  flex-wrap: wrap;
+}
+
+.fp-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.sidebar-section {
   background: var(--bg-card);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
+  padding: var(--space-md);
 }
 
-.floor-plan-sidebar h3 {
+.sidebar-section h3 {
   margin: 0 0 var(--space-sm);
-  font-size: 0.875rem;
-  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary);
 }
 
-/* Floor plan canvas container */
+/* Canvas */
 .canvas-wrap {
   position: relative;
   background: #e8e8ed;
   border-radius: var(--radius-md);
   overflow: hidden;
-  min-height: 400px;
+  flex: 1;
+  min-height: 300px;
 }
 
 .canvas-wrap canvas {
   display: block;
-  cursor: grab;
+  width: 100%;
+  height: 100%;
 }
 
-.canvas-wrap canvas:active {
-  cursor: grabbing;
-}
-
-/* Furniture palette / sidebar */
-.furniture-palette {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
-}
-
-.furniture-palette-item {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-sm);
-  border: 2px dashed var(--border-strong);
+/* Room list */
+.room-list-item {
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: var(--bg-card);
-  cursor: grab;
-  font-size: 0.75rem;
-  text-align: center;
-  padding: var(--space-xs);
-  overflow: hidden;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.1s;
 }
 
-.furniture-palette-item img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
+.room-list-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.room-list-item.selected {
+  background: rgba(0, 113, 227, 0.08);
+  color: var(--accent);
+}
+
+.room-list-label {
+  font-weight: 500;
+}
+
+.room-list-sqft {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.room-list-total {
+  padding: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border);
+  margin-top: var(--space-xs);
+}
+
+/* Room properties */
+.prop-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.prop-row label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  min-width: 70px;
+  flex-shrink: 0;
+}
+
+.prop-row input {
+  flex: 1;
+}
+
+.prop-sqft {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.text-danger {
+  color: #ff3b30 !important;
+}
+
+/* Furniture list */
+.furniture-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  font-size: 0.875rem;
+  border-radius: var(--radius-sm);
+}
+
+.furniture-list-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.add-furniture-form {
+  display: flex;
+  gap: var(--space-xs);
+  margin-top: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.add-furniture-form input {
+  flex: 1;
+  min-width: 80px;
+}
+
+.add-furniture-form select {
+  padding: 4px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  font-size: 0.8125rem;
+}
+
+/* Empty hints */
+.empty-hint {
+  font-size: 0.8125rem;
+  color: var(--text-tertiary);
+  margin: 0;
+  padding: var(--space-sm) 0;
 }
 
 /* Budget table */
@@ -174,65 +379,18 @@
   font-size: 0.9375rem;
 }
 
-/* Modal */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: var(--space-lg);
-}
-
-.modal {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  max-width: 480px;
-  width: 100%;
-  max-height: 90vh;
-  overflow: auto;
-}
-
-.modal-header {
-  padding: var(--space-lg);
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.modal-header h2 {
-  margin: 0;
-  font-size: 1.25rem;
-}
-
-.modal-body {
-  padding: var(--space-lg);
-}
-
-.modal-footer {
-  padding: var(--space-lg);
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--space-sm);
-}
-
 /* Floor tabs */
 .floor-tabs {
   display: flex;
   gap: var(--space-xs);
-  margin-bottom: var(--space-md);
   flex-wrap: wrap;
 }
 
 .floor-tab {
-  padding: var(--space-sm) var(--space-md);
+  padding: var(--space-xs) var(--space-md);
   border-radius: var(--radius-sm);
   font-weight: 500;
+  font-size: 0.8125rem;
   color: var(--text-secondary);
   background: var(--bg-card);
   border: 1px solid var(--border);
@@ -257,27 +415,8 @@
 .floor-toolbar {
   display: flex;
   align-items: center;
-  gap: var(--space-md);
-  margin-bottom: var(--space-md);
-  flex-wrap: wrap;
-}
-
-.room-blocks-palette {
-  display: flex;
   gap: var(--space-sm);
   flex-wrap: wrap;
-}
-
-.room-block-btn {
-  padding: var(--space-sm) var(--space-md);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-strong);
-  background: var(--bg-card);
-  font-size: 0.875rem;
-}
-
-.room-block-btn:hover {
-  background: var(--bg-card-hover);
 }
 
 .btn.active {
