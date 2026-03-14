@@ -46,7 +46,7 @@ function matchRoute(segments) {
 }
 
 async function projectsRoute() {
-  renderProjectsPage();
+  await renderProjectsPage();
 }
 
 async function floorPlanRoute(params) {
@@ -70,19 +70,27 @@ async function budgetRoute(params) {
 }
 
 async function render() {
-  const { segments } = parseHash();
-  const { handler, params } = matchRoute(segments);
+  try {
+    const { segments } = parseHash();
+    const { handler, params } = matchRoute(segments);
 
-  renderAppShell();
-  const content = document.getElementById('app-content');
-  if (content) {
-    content.innerHTML = '';
-    if (params.id) {
-      content.innerHTML = '<div class="loading-state">Loading…</div>';
+    renderAppShell();
+    const content = document.getElementById('app-content');
+    if (content) {
+      content.innerHTML = '';
+      if (params.id) {
+        content.innerHTML = '<div class="loading-state">Loading…</div>';
+      }
+    }
+
+    await handler(params);
+  } catch (err) {
+    console.error('Render error:', err);
+    const content = document.getElementById('app-content') || document.getElementById('app-main');
+    if (content) {
+      content.innerHTML = `<div style="padding:24px;color:#c00;"><h2>Something went wrong</h2><pre>${err.message}\n${err.stack}</pre></div>`;
     }
   }
-
-  await handler(params);
 }
 
 window.addEventListener('hashchange', render);

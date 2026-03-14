@@ -433,3 +433,7 @@ function escapeHtml(s) {
   div.textContent = s;
   return div.innerHTML;
 }
+
+function escapeAttr(s) {
+  return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}

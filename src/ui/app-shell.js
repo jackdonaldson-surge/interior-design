@@ -6,8 +6,10 @@ import { getCurrentProjectId, subscribe, isDirty } from '../state.js';
 import { getProject } from '../db.js';
 
 let currentProjectName = '';
+let unsubscribe = null;
 
 export function renderAppShell() {
+  if (unsubscribe) unsubscribe();
   const header = document.getElementById('app-header');
   if (!header) return;
 
@@ -47,7 +49,7 @@ export function renderAppShell() {
   content.id = 'app-content';
   main.appendChild(content);
 
-  subscribe(async () => {
+  unsubscribe = subscribe(async () => {
     updateSavedIndicator();
     const id = getCurrentProjectId();
     if (id && !currentProjectName) {
@@ -60,6 +62,7 @@ export function renderAppShell() {
     }
   });
 }
+
 
 export function setCurrentProjectName(name) {
   currentProjectName = name || '';

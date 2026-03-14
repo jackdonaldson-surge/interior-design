@@ -18,8 +18,17 @@
 </head>
 <body>
   <div id="app">
-    <header id="app-header" class="app-header"></header>
-    <main id="app-main" class="app-main"></main>
+    <header id="app-header" class="app-header">
+      <div class="header-left"><a href="#/" class="logo" style="font-weight:600;color:#1d1d1f;">Interior Design</a></div>
+    </header>
+    <main id="app-main" class="app-main">
+      <nav class="nav-sidebar">
+        <a href="#/" class="active">Projects</a>
+      </nav>
+      <div class="content-area" id="app-content" style="flex:1;padding:24px;">
+        <p style="color:#6e6e73;">Loading app…</p>
+      </div>
+    </main>
   </div>
   <script type="module" src="./src/main.js"></script>
 </body>
