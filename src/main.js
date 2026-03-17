@@ -1,97 +1,88 @@
-/**
- * Entry point: init DB, state, app shell, and hash-based router.
- */
+import './style.css';
+import { supabase } from './supabase.js';
+import { renderNav } from './components/nav.js';
+import { renderAuth } from './views/auth.js';
+import { renderToday } from './views/today.js';
+import { renderWeek } from './views/week.js';
+import { renderProjects } from './views/projects.js';
+import { renderEOD } from './views/eod.js';
+import { stopAllTicking } from './timer.js';
 
-import '../styles/reset.css';
-import '../styles/theme.css';
-import '../styles/layout.css';
-import '../styles/components.css';
-import { renderAppShell } from './ui/app-shell.js';
-import { renderProjectsPage } from './ui/projects.js';
-import { renderFloorPlanPage } from './ui/floor-plan.js';
-import { renderBudgetPage } from './ui/budget.js';
-import { getCurrentProjectId, setCurrentProjectId } from './state.js';
-import { getProject } from './db.js';
+const app = document.getElementById('app');
 
-const routes = {
-  '': projectsRoute,
-  'project/:id/plan': floorPlanRoute,
-  'project/:id/budget': budgetRoute,
-};
-
-function parseHash() {
-  const hash = window.location.hash.slice(1) || '';
-  const [path, ...rest] = hash.split('?');
-  const segments = path.split('/').filter(Boolean);
-  return { segments, path };
-}
-
-function matchRoute(segments) {
-  for (const [pattern, handler] of Object.entries(routes)) {
-    const parts = pattern.split('/').filter(Boolean);
-    if (parts.length !== segments.length) continue;
-    const params = {};
-    let match = true;
-    for (let i = 0; i < parts.length; i++) {
-      if (parts[i].startsWith(':')) {
-        params[parts[i].slice(1)] = segments[i];
-      } else if (parts[i] !== segments[i]) {
-        match = false;
-        break;
-      }
-    }
-    if (match) return { handler, params };
-  }
-  return { handler: projectsRoute, params: {} };
-}
-
-async function projectsRoute() {
-  await renderProjectsPage();
-}
-
-async function floorPlanRoute(params) {
-  const project = await getProject(params.id);
-  if (!project) {
-    window.location.hash = '';
-    return;
-  }
-  setCurrentProjectId(params.id);
-  renderFloorPlanPage(project);
-}
-
-async function budgetRoute(params) {
-  const project = await getProject(params.id);
-  if (!project) {
-    window.location.hash = '';
-    return;
-  }
-  setCurrentProjectId(params.id);
-  renderBudgetPage(project);
+async function getUser() {
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user || null;
 }
 
 async function render() {
+  stopAllTicking();
+  app.innerHTML = '';
+
+  const user = await getUser();
+
+  if (!user) {
+    renderAuth(app);
+    return;
+  }
+
+  const layout = document.createElement('div');
+  layout.className = 'layout';
+
+  renderNav(layout, user.email);
+
+  const main = document.createElement('div');
+  main.className = 'main';
+  layout.appendChild(main);
+
+  app.appendChild(layout);
+
+  const hash = location.hash || '#/';
+
   try {
-    const { segments } = parseHash();
-    const { handler, params } = matchRoute(segments);
-
-    renderAppShell();
-    const content = document.getElementById('app-content');
-    if (content) {
-      content.innerHTML = '';
-      if (params.id) {
-        content.innerHTML = '<div class="loading-state">Loading…</div>';
-      }
+    if (hash === '#/week') {
+      await renderWeek(app, main);
+    } else if (hash === '#/projects') {
+      await renderProjects(app, main);
+    } else if (hash === '#/eod') {
+      await renderEOD(app, main);
+    } else {
+      await renderToday(app, main);
     }
-
-    await handler(params);
   } catch (err) {
-    console.error('Render error:', err);
-    const content = document.getElementById('app-content') || document.getElementById('app-main');
-    if (content) {
-      content.innerHTML = `<div style="padding:24px;color:#c00;"><h2>Something went wrong</h2><pre>${err.message}\n${err.stack}</pre></div>`;
-    }
+    console.error('View error:', err);
+    main.innerHTML = `<div class="error-page"><h2>Something went wrong</h2><pre>${esc(err.message)}</pre><a href="#/" class="btn btn-secondary" style="margin-top:16px">Back to Today</a></div>`;
   }
 }
 
+// Auth state changes (login, logout, token refresh)
+supabase.auth.onAuthStateChange((event) => {
+  if (event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED') {
+    render();
+  }
+});
+
 window.addEventListener('hashchange', render);
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if (e.key === 'n' || e.key === 'N') {
+    e.preventDefault();
+    location.hash = '#/';
+    setTimeout(() => {
+      const input = document.getElementById('qa-input');
+      if (input) input.focus();
+    }, 100);
+  }
+  if (e.key === 'e' || e.key === 'E') {
+    e.preventDefault();
+    location.hash = '#/eod';
+  }
+});
+
 render();
+
+function esc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
