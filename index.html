@@ -6,7 +6,12 @@
   <title>TimeTracker</title>
 </head>
 <body>
-  <div id="app"></div>
+  <div id="app"><p style="text-align:center;padding:48px;color:#6e6e73;font-family:-apple-system,sans-serif;">Loading TimeTracker…</p></div>
   <script type="module" src="./src/main.js"></script>
+  <script>
+    window.addEventListener('error', function(e) {
+      document.getElementById('app').innerHTML = '<div style="padding:48px;font-family:sans-serif;"><h2 style="color:#ff3b30;">Error</h2><pre>' + e.message + '</pre></div>';
+    });
+  </script>
 </body>
 </html>
